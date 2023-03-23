@@ -52,8 +52,9 @@ TARGET_MODULES = [
     "query_key_value",
     "xxx",
 ]
-DATA_PATH = "alpaca_data_cleaned.json"
-OUTPUT_DIR = "lora-gpt-neox-20b"
+# DATA_PATH = "alpaca_data_cleaned.json"
+DATA_PATH = "Belle.train.json"
+OUTPUT_DIR = "lora-gpt-neox-20b-belle"
 
 device_map = "auto"
 world_size = int(os.environ.get("WORLD_SIZE", 1))
@@ -100,20 +101,13 @@ data = load_dataset("json", data_files=DATA_PATH)
 
 def generate_prompt(data_point):
     # sorry about the formatting disaster gotta move fast
-    if data_point["input"]:
-        return f"""Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.
+    return f"""Below is an instruction that describes a task. Write a response that appropriately completes the request.
+
 ### Instruction:
-{data_point["instruction"]}
-### Input:
 {data_point["input"]}
+
 ### Response:
-{data_point["output"]}"""
-    else:
-        return f"""Below is an instruction that describes a task. Write a response that appropriately completes the request.
-### Instruction:
-{data_point["instruction"]}
-### Response:
-{data_point["output"]}"""
+{data_point["target"]}"""
 
 
 def tokenize(prompt):
@@ -134,25 +128,15 @@ def tokenize(prompt):
 def generate_and_tokenize_prompt(data_point):
     # This function masks out the labels for the input,
     # so that our loss is computed only on the response.
-    user_prompt = (
-        (
-            f"""Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.
-### Instruction:
-{data_point["instruction"]}
-### Input:
-{data_point["input"]}
-### Response:
-"""
-        )
-        if data_point["input"]
-        else (
-            f"""Below is an instruction that describes a task. Write a response that appropriately completes the request.
-### Instruction:
-{data_point["instruction"]}
-### Response:
-"""
-        )
-    )
+
+    user_prompt = f"""Below is an instruction that describes a task. Write a response that appropriately completes the request.
+
+                ### Instruction:
+                {data_point["input"]}
+
+                ### Response:
+                """
+
     len_user_prompt_tokens = (
         len(
             tokenizer(
@@ -164,7 +148,8 @@ def generate_and_tokenize_prompt(data_point):
         - 1
     )  # no eos token
     full_tokens = tokenizer(
-        user_prompt + data_point["output"],
+        # user_prompt + data_point["output"],
+        user_prompt + data_point["target"],
         truncation=True,
         max_length=CUTOFF_LEN + 1,
         padding="max_length",

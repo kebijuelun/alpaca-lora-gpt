@@ -21,7 +21,7 @@ from peft import (
 
 # optimized for RTX 4090. for larger GPUs, increase some of these?
 MICRO_BATCH_SIZE = 96  # this could actually be 5 but i like powers of 2
-BATCH_SIZE = 96*2
+BATCH_SIZE = 96 * 2
 GRADIENT_ACCUMULATION_STEPS = BATCH_SIZE // MICRO_BATCH_SIZE
 EPOCHS = 3  # we don't always need 3 tbh
 LEARNING_RATE = 3e-4  # the Karpathy constant
@@ -164,7 +164,7 @@ if VAL_SET_SIZE > 0:
     train_data = train_val["train"].shuffle().map(generate_and_tokenize_prompt)
     val_data = train_val["test"].shuffle().map(generate_and_tokenize_prompt)
 else:
-    train_data = data['train'].shuffle().map(generate_and_tokenize_prompt)
+    train_data = data["train"].shuffle().map(generate_and_tokenize_prompt)
     val_data = None
 
 trainer = transformers.Trainer(
@@ -197,7 +197,7 @@ model.state_dict = (
     lambda self, *_, **__: get_peft_model_state_dict(self, old_state_dict())
 ).__get__(model, type(model))
 
-if torch.__version__ >= "2" and sys.platform != 'win32':
+if torch.__version__ >= "2" and sys.platform != "win32":
     model = torch.compile(model)
 
 trainer.train()

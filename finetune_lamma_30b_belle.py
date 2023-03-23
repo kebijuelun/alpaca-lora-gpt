@@ -83,26 +83,6 @@ def generate_prompt(data_point):
 ### Response:
 {data_point["target"]}"""
 
-    # if data_point["input"]:
-    #     return f"""Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.
-
-    #     ### Instruction:
-    #     {data_point["instruction"]}
-
-    #     ### Input:
-    #     {data_point["input"]}
-
-    #     ### Response:
-    #     {data_point["output"]}"""
-    # else:
-    #     return f"""Below is an instruction that describes a task. Write a response that appropriately completes the request.
-
-    #     ### Instruction:
-    #     {data_point["instruction"]}
-
-    #     ### Response:
-    #     {data_point["output"]}"""
-
 
 def tokenize(prompt):
     # there's probably a way to do this with the tokenizer settings
@@ -123,41 +103,14 @@ def generate_and_tokenize_prompt(data_point):
     # This function masks out the labels for the input,
     # so that our loss is computed only on the response.
 
-    user_prompt = (
-        (
-            f"""Below is an instruction that describes a task. Write a response that appropriately completes the request.
+    user_prompt = f"""Below is an instruction that describes a task. Write a response that appropriately completes the request.
 
                 ### Instruction:
                 {data_point["input"]}
 
                 ### Response:
                 """
-                )
-                )
-    # user_prompt = (
-    #     (
-    #         f"""Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.
 
-    #             ### Instruction:
-    #             {data_point["instruction"]}
-
-    #             ### Input:
-    #             {data_point["input"]}
-
-    #             ### Response:
-    #             """
-    #             )
-    #     if data_point["input"]
-    #     else (
-    #         f"""Below is an instruction that describes a task. Write a response that appropriately completes the request.
-
-    #         ### Instruction:
-    #         {data_point["instruction"]}
-
-    #         ### Response:
-    #         """
-    #                 )
-    #             )
     len_user_prompt_tokens = (
         len(
             tokenizer(
@@ -190,7 +143,7 @@ if VAL_SET_SIZE > 0:
     train_data = train_val["train"].shuffle().map(generate_and_tokenize_prompt)
     val_data = train_val["test"].shuffle().map(generate_and_tokenize_prompt)
 else:
-    train_data = data['train'].shuffle().map(generate_and_tokenize_prompt)
+    train_data = data["train"].shuffle().map(generate_and_tokenize_prompt)
     val_data = None
 
 trainer = transformers.Trainer(
@@ -223,7 +176,7 @@ model.state_dict = (
     lambda self, *_, **__: get_peft_model_state_dict(self, old_state_dict())
 ).__get__(model, type(model))
 
-if torch.__version__ >= "2" and sys.platform != 'win32':
+if torch.__version__ >= "2" and sys.platform != "win32":
     model = torch.compile(model)
 
 trainer.train()

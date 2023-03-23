@@ -80,6 +80,7 @@ def generate_prompt(instruction, input=None):
 
 ### Response:"""
 
+
 if not LOAD_8BIT:
     model.half()  # seems to fix bugs for some users.
 
