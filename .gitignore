@@ -1,0 +1,14 @@
+out/
+7B/
+13B/
+chansung-alpaca-lora-30b
+__pycache__/
+checkpoint**
+minimal-llama**
+upload.py
+lora-**
+*lora-*
+*ckpt
+wandb
+core
+.ipynb_checkpoints
